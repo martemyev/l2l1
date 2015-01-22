@@ -8,6 +8,8 @@ int main(int argc, char **argv)
   if (param._verbose > 1)
     param.print_parameters();
 
+  param.check_parameters();
+
   l2l1(param);
 
   return 0;

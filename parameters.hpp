@@ -115,9 +115,6 @@ public:
   /// Verbosity level
   int _verbose;
 
-  /// For printing the options and values
-  static const int _PRINT_LEN = 15;
-
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;
@@ -130,6 +127,27 @@ public:
 
   /// Print the parameters with which the program is going to work
   std::ostream& print_parameters(std::ostream &out = std::cout) const;
+
+  /// Check that the parameters make sense
+  void check_parameters() const;
+
+  /// Length of the longest string representing the key words of the parameters
+  int _longest_string_key_len;
+
+  /// Length of the longest string representing the values of the parameters
+  int _longest_string_value_len;
+
+  /// Default file name
+  static std::string DEFAULT_FILE_NAME;
+
+  /// Default length of strings for printing aligned key words and values of the
+  /// parameters
+  static int DEFAULT_PRINT_LEN;
+
+protected:
+
+  void update_longest_string_key_len();
+  void update_longest_string_value_len();
 };
 
 
