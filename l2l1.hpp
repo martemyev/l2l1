@@ -106,28 +106,31 @@ void l2l1(Parameters &param)
   l2_1 = sqrt(l2_1);
   l2_diff = sqrt(l2_diff);
 
+  const double l2_diff_rel = l2_diff / l2_0;
+  const double l1_diff_rel = l1_diff / l1_0;
+
   if (param._verbose > 1)
   {
     std::cout << "\nn_rows      = " << n_rows;
     std::cout << "\nL2_0        = " << l2_0;
     std::cout << "\nL2_1        = " << l2_1;
     std::cout << "\nL2_diff_abs = " << l2_diff;
-    std::cout << "\nL2_diff_rel = " << l2_diff/l2_0
-              << " =" << l2_diff/l2_0*100 << " %";
+    std::cout << "\nL2_diff_rel = " << l2_diff_rel
+              << " =" << l2_diff_rel * 100 << " %";
     std::cout << "\nL1_0        = " << l1_0;
     std::cout << "\nL1_1        = " << l1_1;
     std::cout << "\nL1_diff_abs = " << l1_diff;
-    std::cout << "\nL1_diff_rel = " << l1_diff/l1_0
-              << " = " << l1_diff/l1_0*100 << " %\n";
+    std::cout << "\nL1_diff_rel = " << l1_diff_rel
+              << " = " << l1_diff_rel * 100 << " %\n";
   }
   else if (param._verbose > 0)
   {
-    std::cout << "\nL2_diff_rel = " << l2_diff/l2_0*100 << " %";
-    std::cout << "\nL1_diff_rel = " << l1_diff/l1_0*100 << " %\n";
+    std::cout << "\nL2_diff_rel = " << l2_diff_rel * 100 << " %";
+    std::cout << "\nL1_diff_rel = " << l1_diff_rel * 100 << " %\n";
   }
   else
   {
-    std::cout << l2_diff/l2_0*100 << " " << l1_diff/l1_0*100 << "\n";
+    std::cout << l2_diff_rel * 100 << " " << l1_diff_rel * 100 << "\n";
   }
 
 //  if (diff_file)
