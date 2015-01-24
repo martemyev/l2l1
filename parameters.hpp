@@ -115,6 +115,8 @@ public:
   /// Verbosity level
   int _verbose;
 
+  int _diff_file;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;

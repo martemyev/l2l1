@@ -25,6 +25,7 @@ Parameters::Parameters(int argc, char **argv)
     _row_beg(0),
     _row_end(-1),
     _verbose(2),
+    _diff_file(0),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
 {
@@ -36,6 +37,7 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-r0"]    = std::unique_ptr<ParamBase>(new OneParam<int>("first row for comparison", &_row_beg));
   _parameters["-r1"]    = std::unique_ptr<ParamBase>(new OneParam<int>("last row for comparison (not including)", &_row_end));
   _parameters["-v"]     = std::unique_ptr<ParamBase>(new OneParam<int>("verbosity level", &_verbose));
+  _parameters["-df"]    = std::unique_ptr<ParamBase>(new OneParam<int>("make a file with difference", &_diff_file));
 
   update_longest_string_key_len();
 

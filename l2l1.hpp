@@ -116,7 +116,7 @@ void l2l1(Parameters &param)
     std::cout << "\nL2_1        = " << l2_1;
     std::cout << "\nL2_diff_abs = " << l2_diff;
     std::cout << "\nL2_diff_rel = " << l2_diff_rel
-              << " =" << l2_diff_rel * 100 << " %";
+              << " = " << l2_diff_rel * 100 << " %";
     std::cout << "\nL1_0        = " << l1_0;
     std::cout << "\nL1_1        = " << l1_1;
     std::cout << "\nL1_diff_abs = " << l1_diff;
@@ -133,27 +133,27 @@ void l2l1(Parameters &param)
     std::cout << l2_diff_rel * 100 << " " << l1_diff_rel * 100 << "\n";
   }
 
-//  if (diff_file)
-//  {
-//    const std::string fname = "diff_file.bin";
-//    std::ofstream out(fname.c_str(), std::ios::binary);
-//    if (!out)
-//    {
-//      std::cerr << "File '" << fname << "' can't be opened for writing.\n";
-//      exit(1);
-//    }
+  if (param._diff_file)
+  {
+    const std::string fname = "diff_file.bin";
+    std::ofstream out(fname.c_str(), std::ios::binary);
+    if (!out)
+    {
+      std::cerr << "File '" << fname << "' can't be opened for writing.\n";
+      exit(1);
+    }
 
-//    for (int i = 0; i < n_rows; ++i)
-//    {
-//      for (int j = col_beg; j < col_end; ++j)
-//      {
-//        float val = data0[i][j] - data1[i][j];
-//        out.write(reinterpret_cast<char*>(&val), sizeof(val));
-//      }
-//    }
+    for (int i = param._row_beg; i < param._row_end; ++i)
+    {
+      for (int j = param._col_beg; j < param._col_end; ++j)
+      {
+        float val = data0[i][j] - data1[i][j];
+        out.write(reinterpret_cast<char*>(&val), sizeof(val));
+      }
+    }
 
-//    out.close();
-//  }
+    out.close();
+  }
 
 
 
