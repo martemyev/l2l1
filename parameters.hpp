@@ -115,7 +115,10 @@ public:
   /// Verbosity level
   int _verbose;
 
-  int _diff_file;
+  /// The name of the file representing the difference between two datasets from
+  /// the files _file_0 and _file_1. The data in the difference file are also
+  /// saved in single precision.
+  std::string _diff_file;
 
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
@@ -148,7 +151,9 @@ public:
 
 protected:
 
+  /// The name of the function is self-explaining
   void update_longest_string_key_len();
+  /// The name of the function is self-explaining
   void update_longest_string_value_len();
 };
 
@@ -160,7 +165,18 @@ protected:
 // Auxiliary functions
 //
 //==============================================================================
+/**
+ * Check if there is a string arg in the array of strings argv of length argc.
+ * This is used to determine if there is an argument in a command line.
+ * @return The position of the arg in the array argv, so that the value of the
+ * argument can be read at the next position
+ */
 int argcheck(int argc, char **argv, const char *arg);
+/**
+ * Add some empty space to a given string str up to the given length. It's used
+ * to represent all options aligned.
+ * @return A string extended by spaces
+ */
 std::string add_space(const std::string &str, int length);
 
 #endif // PARAMETERS_HPP

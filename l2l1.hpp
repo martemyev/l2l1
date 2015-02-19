@@ -133,13 +133,14 @@ void l2l1(Parameters &param)
     std::cout << l2_diff_rel * 100 << " " << l1_diff_rel * 100 << "\n";
   }
 
-  if (param._diff_file)
+  if (!param._diff_file.empty() &&
+      param._diff_file != Parameters::DEFAULT_FILE_NAME)
   {
-    const std::string fname = "diff_file.bin";
-    std::ofstream out(fname.c_str(), std::ios::binary);
+    std::ofstream out(param._diff_file.c_str(), std::ios::binary);
     if (!out)
     {
-      std::cerr << "File '" << fname << "' can't be opened for writing.\n";
+      std::cerr << "File '" << param._diff_file << "' can't be opened for "
+                   "writing.\n";
       exit(1);
     }
 
