@@ -26,6 +26,7 @@ Parameters::Parameters(int argc, char **argv)
     _row_end(-1),
     _verbose(2),
     _diff_file(DEFAULT_FILE_NAME),
+    _scale_file_1(false),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
 {
@@ -38,6 +39,7 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-r1"]    = std::unique_ptr<ParamBase>(new OneParam<int>("last row for comparison (not including)", &_row_end));
   _parameters["-v"]     = std::unique_ptr<ParamBase>(new OneParam<int>("verbosity level", &_verbose));
   _parameters["-df"]    = std::unique_ptr<ParamBase>(new OneParam<std::string>("name of file with difference", &_diff_file));
+  _parameters["-sc1"]   = std::unique_ptr<ParamBase>(new OneParam<bool>("scale data 1 with respect to data 0", &_scale_file_1));
 
   update_longest_string_key_len();
 
@@ -239,5 +241,58 @@ std::string add_space(const std::string &str, int length)
 {
   const int n_spaces = std::max(length - (int)str.size(), 0);
   return str + std::string(n_spaces, ' ');
+}
+
+
+
+
+std::string file_name(const std::string &path)
+{
+  if (path == "") return path;
+
+#if defined(__linux__) || defined(__APPLE__)
+  // extract a filename
+  const std::string fname = path.substr(path.find_last_of('/') + 1);
+#elif defined(_WIN32)
+  // extract a filename
+  const std::string fname = path.substr(path.find_last_of('\\') + 1);
+#endif
+
+  return fname;
+}
+
+
+
+
+std::string file_stem(const std::string &path)
+{
+  if (path == "") return path;
+
+  // get a file name from the path
+  const std::string fname = file_name(path);
+
+  // extract a stem and return it
+  return fname.substr(0, fname.find_last_of('.'));
+}
+
+
+
+
+std::string file_path(const std::string &path)
+{
+  if (path == "") return path;
+
+#if defined(__linux__) || defined(__APPLE__)
+  // extract a path
+  const std::string path_ = path.substr(0, path.find_last_of('/') + 1);
+#elif defined(_WIN32)
+  // extract a path
+  const std::string path_ = path.substr(0, path.find_last_of('\\') + 1);
+#endif
+
+  if (path_ == path)
+    return ""; // no path delimeters = no path
+
+  return path_;
 }
 

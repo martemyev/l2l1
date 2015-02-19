@@ -133,6 +133,7 @@ void l2l1(Parameters &param)
     std::cout << l2_diff_rel * 100 << " " << l1_diff_rel * 100 << "\n";
   }
 
+  //-------------------------------- file of difference ------------------------
   if (!param._diff_file.empty() &&
       param._diff_file != Parameters::DEFAULT_FILE_NAME)
   {
@@ -156,6 +157,42 @@ void l2l1(Parameters &param)
     out.close();
   }
 
+  //-------------------------------------- scaling -----------------------------
+  if (param._scale_file_1)
+  {
+    // find the max ratio between two datasets
+    double max_ratio = fabs(data0[param._row_beg][param._col_beg] /
+                            data1[param._row_beg][param._col_beg]);
+    for (int i = param._row_beg + 1; i < param._row_end; ++i)
+    {
+      for (int j = param._col_beg + 1; j < param._col_end; ++j)
+      {
+        double ratio = fabs(data0[i][j] / data1[i][j]);
+        if (ratio > max_ratio) max_ratio = ratio;
+      }
+    }
+
+    // now create a new file with scaled data from the file 1
+    const std::string scaled_file_1 = file_path(param._file_1) +
+                                      file_stem(param._file_1) +
+                                      "_scaled.bin";
+    std::ofstream out(scaled_file_1.c_str(), std::ios::binary);
+    if (!out)
+    {
+      std::cerr << "File '" << scaled_file_1 << "' can't be opened for "
+                   "writing.\n";
+      exit(1);
+    }
+    for (int i = param._row_beg; i < param._row_end; ++i)
+    {
+      for (int j = param._col_beg; j < param._col_end; ++j)
+      {
+        float val = max_ratio * data1[i][j];
+        out.write(reinterpret_cast<char*>(&val), sizeof(val));
+      }
+    }
+    out.close();
+  }
 
 
 

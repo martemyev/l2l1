@@ -120,6 +120,11 @@ public:
   /// saved in single precision.
   std::string _diff_file;
 
+  /// Whether to scale the data from the _file_1 in such a way that it might be
+  /// closer to the data from the _file_0. That creates a new file with the
+  /// suffix 'scaled' (or similar).
+  bool _scale_file_1;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;
@@ -178,5 +183,36 @@ int argcheck(int argc, char **argv, const char *arg);
  * @return A string extended by spaces
  */
 std::string add_space(const std::string &str, int length);
+/**
+ * Get (extract) a file name from the given path.
+ * @param path - a name of a file under interest including the path
+ * @return a string representing a name of the file.
+ *         For example:
+ * @verbatim
+   file_name("/home/user/file.dat") = "file.dat"
+ * @endverbatim
+ */
+std::string file_name(const std::string &path);
+/**
+ * Extract a stem from a filename with a path.
+ * @param path - a name of a file under interest including the path
+ * @return a string which represents the name of the file without an extension -
+ *         only a stem of the file.
+ *         For example:
+ * @verbatim
+   stem("/home/user/file.dat") = "file"
+ * @endverbatim
+ */
+std::string file_stem(const std::string &path);
+/**
+  Get (extract) a path of the given file.
+  @param path - a name of a file under interest including the path
+  @return a string representing the path to the file.
+          For example:
+  @verbatim
+  file_name("/home/user/file.dat") = "/home/user/"
+  @endverbatim
+ */
+std::string file_path(const std::string &path);
 
 #endif // PARAMETERS_HPP
