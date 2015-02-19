@@ -9,6 +9,7 @@
 #include <vector>
 #include <cstdlib>
 #include <cmath>
+#include <cfloat>
 
 
 
@@ -137,6 +138,9 @@ void l2l1(Parameters &param)
   if (!param._diff_file.empty() &&
       param._diff_file != Parameters::DEFAULT_FILE_NAME)
   {
+    if (param._verbose > 1)
+      std::cout << "Make a file of difference: " << param._diff_file << std::endl;
+
     std::ofstream out(param._diff_file.c_str(), std::ios::binary);
     if (!out)
     {
@@ -160,17 +164,27 @@ void l2l1(Parameters &param)
   //-------------------------------------- scaling -----------------------------
   if (param._scale_file_1)
   {
-    // find the max ratio between two datasets
-    double max_ratio = fabs(data0[param._row_beg][param._col_beg] /
-                            data1[param._row_beg][param._col_beg]);
+    if (param._verbose > 1)
+      std::cout << "Make a scaled file 1\n";
+
+    // find the absolute max values of the two datasets
+    float max_value0 = fabs(data0[param._row_beg][param._col_beg]);
+    float max_value1 = fabs(data1[param._row_beg][param._col_beg]);
     for (int i = param._row_beg + 1; i < param._row_end; ++i)
     {
       for (int j = param._col_beg + 1; j < param._col_end; ++j)
       {
-        double ratio = fabs(data0[i][j] / data1[i][j]);
-        if (ratio > max_ratio) max_ratio = ratio;
+        if (fabs(data0[i][j]) > max_value0) max_value0 = fabs(data0[i][j]);
+        if (fabs(data1[i][j]) > max_value1) max_value1 = fabs(data1[i][j]);
       }
     }
+
+    float ratio = max_value0 / max_value1;
+
+    if (param._verbose > 1)
+      std::cout << "  max_value0 = " << max_value0 << "\n"
+                << "  max_value1 = " << max_value1 << "\n"
+                << "  ratio      = " << ratio << std::endl;
 
     // now create a new file with scaled data from the file 1
     const std::string scaled_file_1 = file_path(param._file_1) +
@@ -187,7 +201,7 @@ void l2l1(Parameters &param)
     {
       for (int j = param._col_beg; j < param._col_end; ++j)
       {
-        float val = max_ratio * data1[i][j];
+        float val = ratio * data1[i][j];
         out.write(reinterpret_cast<char*>(&val), sizeof(val));
       }
     }
