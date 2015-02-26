@@ -27,6 +27,7 @@ Parameters::Parameters(int argc, char **argv)
     _verbose(2),
     _diff_file(DEFAULT_FILE_NAME),
     _scale_file_1(false),
+    _shift_file_1(false),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
 {
@@ -40,6 +41,7 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-v"]     = std::unique_ptr<ParamBase>(new OneParam<int>("verbosity level", &_verbose));
   _parameters["-df"]    = std::unique_ptr<ParamBase>(new OneParam<std::string>("name of file with difference", &_diff_file));
   _parameters["-sc1"]   = std::unique_ptr<ParamBase>(new OneParam<bool>("scale data 1 with respect to data 0", &_scale_file_1));
+  _parameters["-sh1"]   = std::unique_ptr<ParamBase>(new OneParam<bool>("shift data 1 with respect to data 0", &_scale_file_1));
 
   update_longest_string_key_len();
 

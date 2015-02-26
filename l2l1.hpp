@@ -179,7 +179,7 @@ void l2l1(Parameters &param)
       }
     }
 
-    float ratio = max_value0 / max_value1;
+    const float ratio = max_value0 / max_value1;
 
     if (param._verbose > 1)
       std::cout << "  max_value0 = " << max_value0 << "\n"
@@ -208,8 +208,68 @@ void l2l1(Parameters &param)
     out.close();
   }
 
+  //------------------------------------- shifting -----------------------------
+  if (param._shift_file_1)
+  {
+    if (param._verbose > 1)
+      std::cout << "Make a shifted file 1\n";
+
+    // find the absolute max values of the two datasets and the corresponding
+    // time (time step number)
+    float max_value0 = fabs(data0[param._row_beg][param._col_beg]);
+    float max_value1 = fabs(data1[param._row_beg][param._col_beg]);
+    int timestep0 = param._row_beg; // time step corresponding to max_value0
+    int timestep1 = param._row_beg; // time step corresponding to max_value1
+
+    for (int i = param._row_beg + 1; i < param._row_end; ++i)
+    {
+      for (int j = param._col_beg + 1; j < param._col_end; ++j)
+      {
+        if (fabs(data0[i][j]) > max_value0)
+        {
+          max_value0 = fabs(data0[i][j]);
+          timestep0  = i;
+        }
+        if (fabs(data1[i][j]) > max_value1)
+        {
+          max_value1 = fabs(data1[i][j]);
+          timestep1  = i;
+        }
+      }
+    }
+
+    // the shift is defined in terms of time steps
+    const int shift = timestep0 - timestep1;
+
+    if (param._verbose > 1)
+      std::cout << "  shift in timesteps = " << shift << std::endl;
+
+    // now create a new file with shifted data from the file 1
+    const std::string shifted_file_1 = file_path(param._file_1) +
+                                       file_stem(param._file_1) +
+                                       "_shifted.bin";
+    std::ofstream out(shifted_file_1.c_str(), std::ios::binary);
+    if (!out)
+    {
+      std::cerr << "File '" << shifted_file_1 << "' can't be opened for "
+                   "writing.\n";
+      exit(1);
+    }
+    for (int i = param._row_beg; i < param._row_end; ++i)
+    {
+      const int tstep = std::min(std::max(i+shift, param._row_beg), param._row_end);
+      for (int j = param._col_beg; j < param._col_end; ++j)
+      {
+        float val = data1[tstep][j];
+        out.write(reinterpret_cast<char*>(&val), sizeof(val));
+      }
+    }
+    out.close();
+  }
 
 
+
+  //--------------------------------- free the memory --------------------------
   for (int i = 0; i < n_rows; ++i)
   {
     delete[] data1[i];

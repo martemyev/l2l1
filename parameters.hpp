@@ -125,6 +125,11 @@ public:
   /// suffix 'scaled' (or similar).
   bool _scale_file_1;
 
+  /// Whether to shift the data from the _file_1 in such a way that it might be
+  /// closer to the data from the _file_0. That creates a new file with the
+  /// suffix 'shifted' (or similar).
+  bool _shift_file_1;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;
