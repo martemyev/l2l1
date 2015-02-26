@@ -257,7 +257,7 @@ void l2l1(Parameters &param)
     }
     for (int i = param._row_beg; i < param._row_end; ++i)
     {
-      const int tstep = std::min(std::max(i+shift, param._row_beg), param._row_end);
+      const int tstep = std::min(std::max(i-shift, param._row_beg), param._row_end-1);
       for (int j = param._col_beg; j < param._col_end; ++j)
       {
         float val = data1[tstep][j];
