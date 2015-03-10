@@ -315,10 +315,10 @@ void l2l1(Parameters &param)
   const double minXCor = *std::min_element(xcorrelation.begin(), xcorrelation.end());
   const double maxXCor = *std::max_element(xcorrelation.begin(), xcorrelation.end());
 
-  if (param._verbose > 1)
+  if (param._verbose > 0)
     std::cout << "Cross correlation: min = " << minXCor
               << " max = " << maxXCor << std::endl;
-  else
+  else // with no verbosity we just print the numbers
     std::cout << minXCor << " " << maxXCor << std::endl;
 
 
