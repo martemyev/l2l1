@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <cfloat>
+#include <algorithm>
 
 
 
@@ -83,7 +84,7 @@ void l2l1(Parameters &param)
 
 
 
-  // comparison
+  //-------------------------------- L2 and L1 norms ---------------------------
   if (param._row_end < 0) param._row_end = n_rows;
 
   float l2_0 = 0, l1_0 = 0;
@@ -267,6 +268,58 @@ void l2l1(Parameters &param)
     out.close();
   }
 
+  //-------------------------------- cross correlation -------------------------
+  // average and standard deviation for every time log, i.e. every receiver, of
+  // each dataset
+  std::vector<double> mu[2];
+  std::vector<double> sigma[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    mu[i].resize(param._col_end - param._col_beg, 0.);
+    sigma[i].resize(param._col_end - param._col_beg, 0.);
+  }
+
+  // compute an average and sigma for every time series of every dataset
+  for (int j = param._col_beg; j < param._col_end; ++j)
+  {
+    double part0 = 0.;
+    double part1 = 0.;
+    for (int i = param._row_beg; i < param._row_end; ++i)
+    {
+      mu[0][j - param._col_beg] += data0[i][j];
+      mu[1][j - param._col_beg] += data1[i][j];
+      part0 += data0[i][j] * data0[i][j];
+      part1 += data1[i][j] * data1[i][j];
+    }
+    mu[0][j - param._col_beg] /= param._row_end - param._row_beg;
+    mu[1][j - param._col_beg] /= param._row_end - param._row_beg;
+    part0 /= param._row_end - param._row_beg;
+    part1 /= param._row_end - param._row_beg;
+
+    sigma[0][j - param._col_beg] = sqrt(part0 - pow(mu[0][j-param._col_beg],2));
+    sigma[1][j - param._col_beg] = sqrt(part1 - pow(mu[1][j-param._col_beg],2));
+  }
+
+  std::vector<double> xcorrelation(param._col_end - param._col_beg, 0.);
+  for (int j = param._col_beg; j < param._col_end; ++j)
+  {
+    double mu0 = mu[0][j - param._col_beg];
+    double mu1 = mu[1][j - param._col_beg];
+    double sum = 0.;
+    for (int i = param._row_beg; i < param._row_end; ++i)
+      sum += (data0[i][j] - mu0)*(data1[i][j] - mu1);
+    sum /= param._row_end - param._row_beg;
+    xcorrelation[j-param._col_beg] = sum / (sigma[0][j-param._col_beg]*sigma[1][j-param._col_beg]);
+  }
+
+  const double minXCor = *std::min_element(xcorrelation.begin(), xcorrelation.end());
+  const double maxXCor = *std::max_element(xcorrelation.begin(), xcorrelation.end());
+
+  if (param._verbose > 1)
+    std::cout << "Cross correlation: min = " << minXCor
+              << " max = " << maxXCor << std::endl;
+  else
+    std::cout << minXCor << " " << maxXCor << std::endl;
 
 
   //--------------------------------- free the memory --------------------------

@@ -130,6 +130,9 @@ public:
   /// suffix 'shifted' (or similar).
   bool _shift_file_1;
 
+  /// Whether to compute the cross correlation between the data
+  bool _cross_correlation;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;
