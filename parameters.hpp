@@ -138,6 +138,11 @@ public:
   /// 2 - compute cross correlation (one value) for all traces
   int _cross_correlation;
 
+  /// Compute the cross correlation (as defined by the _cross_correlation
+  /// parameter) in the set of lags from -(_lag_region) to +(_lag_region). The
+  /// second dataset is supposed to be lagged against the first one.
+  int _lag_region;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
   std::map<std::string, std::unique_ptr<ParamBase> > _parameters;

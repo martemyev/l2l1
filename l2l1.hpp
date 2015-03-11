@@ -2,6 +2,7 @@
 #define L2L1_HPP
 
 #include "parameters.hpp"
+#include "correlation.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -271,97 +272,45 @@ void l2l1(Parameters &param)
   //-------------------------------- cross correlation -------------------------
   if (param._cross_correlation == 1)
   {
-    // average and standard deviation for every time log, i.e. every receiver,
-    // of each dataset
-    std::vector<double> mu[2];
-    std::vector<double> sigma[2];
-    for (int i = 0; i < 2; ++i)
+    if (param._verbose > 0) std::cout << "Cross correlation:\n";
+
+    for (int lag = -param._lag_region; lag <= param._lag_region; ++lag)
     {
-      mu[i].resize(param._col_end - param._col_beg, 0.);
-      sigma[i].resize(param._col_end - param._col_beg, 0.);
+      std::vector<double> xcorrelation;
+      x_correlation_by_traces(data0, data1,
+                              param._row_beg, param._row_end,
+                              param._col_beg, param._col_end,
+                              lag, xcorrelation);
+
+      const double minXCor = *std::min_element(xcorrelation.begin(), xcorrelation.end());
+      const double maxXCor = *std::max_element(xcorrelation.begin(), xcorrelation.end());
+
+      if (param._verbose > 0)
+        std::cout << "  lag = " << lag
+                  << " min = " << minXCor
+                  << " max = " << maxXCor << std::endl;
+      else // with no verbosity we just print the numbers
+        std::cout << minXCor << " " << maxXCor << std::endl;
     }
-
-    // compute an average and sigma for every time series of every dataset
-    for (int j = param._col_beg; j < param._col_end; ++j)
-    {
-      double part0 = 0.;
-      double part1 = 0.;
-      for (int i = param._row_beg; i < param._row_end; ++i)
-      {
-        mu[0][j - param._col_beg] += data0[i][j];
-        mu[1][j - param._col_beg] += data1[i][j];
-        part0 += data0[i][j] * data0[i][j];
-        part1 += data1[i][j] * data1[i][j];
-      }
-      mu[0][j - param._col_beg] /= param._row_end - param._row_beg;
-      mu[1][j - param._col_beg] /= param._row_end - param._row_beg;
-      part0 /= param._row_end - param._row_beg;
-      part1 /= param._row_end - param._row_beg;
-
-      sigma[0][j - param._col_beg] = sqrt(part0 - pow(mu[0][j-param._col_beg],2));
-      sigma[1][j - param._col_beg] = sqrt(part1 - pow(mu[1][j-param._col_beg],2));
-    }
-
-    std::vector<double> xcorrelation(param._col_end - param._col_beg, 0.);
-    for (int j = param._col_beg; j < param._col_end; ++j)
-    {
-      double mu0 = mu[0][j - param._col_beg];
-      double mu1 = mu[1][j - param._col_beg];
-      double sum = 0.;
-      for (int i = param._row_beg; i < param._row_end; ++i)
-        sum += (data0[i][j] - mu0)*(data1[i][j] - mu1);
-      sum /= param._row_end - param._row_beg;
-      xcorrelation[j-param._col_beg] = sum / (sigma[0][j-param._col_beg]*sigma[1][j-param._col_beg]);
-    }
-
-    const double minXCor = *std::min_element(xcorrelation.begin(), xcorrelation.end());
-    const double maxXCor = *std::max_element(xcorrelation.begin(), xcorrelation.end());
-
-    if (param._verbose > 0)
-      std::cout << "Cross correlation: min = " << minXCor
-                << " max = " << maxXCor << std::endl;
-    else // with no verbosity we just print the numbers
-      std::cout << minXCor << " " << maxXCor << std::endl;
   }
   else if (param._cross_correlation == 2)
   {
-    // compute the average and the deviation for the whole datasets
-    double mu0 = 0.;
-    double mu1 = 0.;
-    double part0 = 0.;
-    double part1 = 0.;
-    for (int i = param._row_beg; i < param._row_end; ++i)
+    if (param._verbose > 0) std::cout << "Cross correlation:\n";
+
+    for (int lag = -param._lag_region; lag <= param._lag_region; ++lag)
     {
-      for (int j = param._col_beg; j < param._col_end; ++j)
-      {
-        mu0 += data0[i][j];
-        mu1 += data1[i][j];
-        part0 += data0[i][j] * data0[i][j];
-        part1 += data1[i][j] * data1[i][j];
-      }
+      double xcorrelation;
+      x_correlation_whole(data0, data1,
+                          param._row_beg, param._row_end,
+                          param._col_beg, param._col_end,
+                          lag, xcorrelation);
+
+      if (param._verbose > 0)
+        std::cout << "  lag = " << lag
+                  << " value = " << xcorrelation << std::endl;
+      else
+        std::cout << xcorrelation << std::endl;
     }
-    mu0 /= (param._row_end - param._row_beg) * (param._col_end - param._col_beg);
-    mu1 /= (param._row_end - param._row_beg) * (param._col_end - param._col_beg);
-    part0 /= (param._row_end - param._row_beg) * (param._col_end - param._col_beg);
-    part1 /= (param._row_end - param._row_beg) * (param._col_end - param._col_beg);
-
-    double sigma0 = sqrt(part0 - mu0*mu0);
-    double sigma1 = sqrt(part1 - mu1*mu1);
-
-    double sum = 0.;
-    for (int i = param._row_beg; i < param._row_end; ++i)
-    {
-      for (int j = param._col_beg; j < param._col_end; ++j)
-        sum += (data0[i][j] - mu0) * (data1[i][j] - mu1);
-    }
-    sum /= (param._row_end - param._row_beg) * (param._col_end - param._col_beg);
-
-    double xcorrelation = sum / (sigma0 * sigma1);
-
-    if (param._verbose > 0)
-      std::cout << "Cross correlation = " << xcorrelation << std::endl;
-    else
-      std::cout << xcorrelation << std::endl;
   }
 
 
