@@ -130,8 +130,13 @@ public:
   /// suffix 'shifted' (or similar).
   bool _shift_file_1;
 
-  /// Whether to compute the cross correlation between the data
-  bool _cross_correlation;
+  /// Compute the cross correlation between the data from the given files. This
+  /// parameter may take the following values:
+  /// 0 (default) - do not compute cross correlation
+  /// 1 - compute cross correlation trace-by-trace and then show the min and max
+  ///     values among all the traces
+  /// 2 - compute cross correlation (one value) for all traces
+  int _cross_correlation;
 
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)

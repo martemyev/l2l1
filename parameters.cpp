@@ -28,7 +28,7 @@ Parameters::Parameters(int argc, char **argv)
     _diff_file(DEFAULT_FILE_NAME),
     _scale_file_1(false),
     _shift_file_1(false),
-    _cross_correlation(false),
+    _cross_correlation(0),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
 {
@@ -43,7 +43,7 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-df"]    = std::unique_ptr<ParamBase>(new OneParam<std::string>("name of file with difference", &_diff_file));
   _parameters["-sc1"]   = std::unique_ptr<ParamBase>(new OneParam<bool>("scale data 1 with respect to data 0", &_scale_file_1));
   _parameters["-sh1"]   = std::unique_ptr<ParamBase>(new OneParam<bool>("shift data 1 with respect to data 0", &_shift_file_1));
-  _parameters["-xcor"]  = std::unique_ptr<ParamBase>(new OneParam<bool>("compute cross correlation", &_cross_correlation));
+  _parameters["-xcor"]  = std::unique_ptr<ParamBase>(new OneParam<int>("compute cross correlation", &_cross_correlation));
 
   update_longest_string_key_len();
 
@@ -178,6 +178,13 @@ void Parameters::check_parameters() const
   {
     std::cerr << "\nFirst row for comparison (" << _row_beg << ") must be less"
                  " than the last row for comparison (" << _row_end << ")\n\n";
+    exit(1);
+  }
+  if (_cross_correlation != 0 && _cross_correlation != 1 && _cross_correlation != 2)
+  {
+    std::cerr << "The parameter for computation of the cross correlation has "
+                 "invalid value: " << _cross_correlation << ". The valid "
+                 "options are: 0, 1, 2 (see the parameters.hpp for details)\n\n";
     exit(1);
   }
 }
