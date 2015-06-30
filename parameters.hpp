@@ -8,6 +8,16 @@
 #include <ostream>
 #include <iostream>
 #include <sstream>
+#include <climits>
+
+
+
+const std::string DEFAULT_FILE_NAME = "no-file";
+const int DEFAULT_PRINT_LEN = 10; ///< Default length of strings for printing
+                                  ///< aligned key words and values of the
+                                  ///< parameters
+const int SPACE_BETWEEN = 5; ///< The space between the name of the option (to
+                             ///< define a parameter) and its description.
 
 
 
@@ -21,8 +31,33 @@ class ParamBase
 {
 public:
 
-  /// Description of the parameter (appears when help is invoked, for example)
-  std::string _description;
+  ParamBase()
+    : _description(""),
+      _priority(0)
+  { }
+
+  ParamBase(const std::string &desc, int priority)
+    : _description(desc),
+      _priority(priority)
+  { }
+
+  ParamBase(const ParamBase &pb)
+    : _description(pb._description),
+      _priority(pb._priority)
+  { }
+
+  ParamBase& operator=(const ParamBase &pb)
+  {
+    _description = pb._description;
+    _priority = pb._priority;
+    return *this;
+  }
+
+  virtual ~ParamBase() { }
+
+  std::string get_description() const { return _description; }
+
+  int get_priority() const { return _priority; }
 
   /// Read the value of the parameter from a string
   /// @param from a string from which the value is read
@@ -31,11 +66,22 @@ public:
   /// Convert the value of the parameter into a string
   virtual std::string str() const = 0;
 
-  static bool compare_by_desc(const std::unique_ptr<ParamBase> &a, const std::unique_ptr<ParamBase> &b)
-  {
-    return a->_description < b->_description;
-  }
+protected:
+
+  /// Description of the parameter (appears when help is invoked, for example)
+  std::string _description;
+
+  /// This attribute controls the order of outputting the parameters (when help
+  /// is invoked, for example). Without this parameter (or, when there are
+  /// several parameters with the same priority) the parameters appear in
+  /// alphabetical order of keys.
+  int _priority;
 };
+
+/**
+ * Shared (smart) pointer to an object of an abstract ParamBase class.
+ */
+typedef std::shared_ptr<ParamBase> ParamBasePtr;
 
 
 
@@ -50,20 +96,35 @@ class OneParam : public ParamBase
 {
 public:
 
-  /// Construator takes a description of the parameter and a pointer to a value
+  /// Constructor takes a description of the parameter and a pointer to a value.
+  /// It also may take a priority value of the parameter, however it's optional
   OneParam(const std::string &desc,
-           T* val)
-    : _value(val)
+           T* val,
+           int priority = INT_MAX)
+    : ParamBase(desc, priority),
+      _value(val)
+  { }
+
+  OneParam(const OneParam &op)
+    : ParamBase(op),
+      _value(op._value)
+  { }
+
+  OneParam& operator=(const OneParam &op)
   {
-    _description = desc;
+    ParamBase::operator=(op);
+    _value = op._value;
+    return *this;
   }
 
+  virtual ~OneParam() { }
+
   /// Value of the parameter is saved somewhere else, and here we keep the
-  /// pointer to it
+  /// pointer to it. This member is public, yes.
   T* _value;
 
   /// Read the value of the parameter from a string
-  /// @param from a string from which the value is read
+  /// @param a string from which the value is read
   virtual void read(const std::string &from)
   {
     std::istringstream is(from);
@@ -94,9 +155,13 @@ public:
   /// Constructor takes the command line
   Parameters(int argc, char **argv);
 
-  /// Two files for comparison. Since we compute relative errors we assume that
-  /// the file0 will contain a reference solution. The files are in binary
-  /// format with floating point numbers in single precision.
+  ~Parameters() { }
+
+  /// Two files for comparison or two components of one solution. In case we
+  /// compute relative errors we assume that the _file_0 will contain a
+  /// reference solution. The files are in binary format with floating point
+  /// numbers in SINGLE precision. If the files represent seismograms we assume
+  /// that columns represent traces and each row is a time step.
   std::string _file_0, _file_1;
 
   /// The files are binary, in form of a table. However, in general case, we
@@ -143,9 +208,11 @@ public:
   /// second dataset is supposed to be lagged against the first one.
   int _lag_region;
 
+  typedef std::map<std::string, ParamBasePtr> ParaMap;
+
   /// The map between the key word representing a parameters, and its value
   /// (and maybe other attributes such as description)
-  std::map<std::string, std::unique_ptr<ParamBase> > _parameters;
+  ParaMap _parameters;
 
   /// Read the values from the command line
   void read_command_line(int argc, char **argv);
@@ -160,24 +227,21 @@ public:
   void check_parameters() const;
 
   /// Length of the longest string representing the key words of the parameters
-  int _longest_string_key_len;
+  mutable int _longest_string_key_len;
 
   /// Length of the longest string representing the values of the parameters
-  int _longest_string_value_len;
+  mutable int _longest_string_value_len;
 
-  /// Default file name
-  static std::string DEFAULT_FILE_NAME;
-
-  /// Default length of strings for printing aligned key words and values of the
-  /// parameters
-  static int DEFAULT_PRINT_LEN;
 
 protected:
 
   /// The name of the function is self-explaining
-  void update_longest_string_key_len();
+  void update_longest_string_key_len() const;
   /// The name of the function is self-explaining
-  void update_longest_string_value_len();
+  void update_longest_string_value_len() const;
+
+  Parameters(const Parameters&);
+  Parameters& operator =(const Parameters&);
 };
 
 
@@ -185,52 +249,12 @@ protected:
 
 //==============================================================================
 //
-// Auxiliary functions
+// Compare two pairs containing info about parameters by the priority of the
+// parameters
 //
 //==============================================================================
-/**
- * Check if there is a string arg in the array of strings argv of length argc.
- * This is used to determine if there is an argument in a command line.
- * @return The position of the arg in the array argv, so that the value of the
- * argument can be read at the next position
- */
-int argcheck(int argc, char **argv, const char *arg);
-/**
- * Add some empty space to a given string str up to the given length. It's used
- * to represent all options aligned.
- * @return A string extended by spaces
- */
-std::string add_space(const std::string &str, int length);
-/**
- * Get (extract) a file name from the given path.
- * @param path - a name of a file under interest including the path
- * @return a string representing a name of the file.
- *         For example:
- * @verbatim
-   file_name("/home/user/file.dat") = "file.dat"
- * @endverbatim
- */
-std::string file_name(const std::string &path);
-/**
- * Extract a stem from a filename with a path.
- * @param path - a name of a file under interest including the path
- * @return a string which represents the name of the file without an extension -
- *         only a stem of the file.
- *         For example:
- * @verbatim
-   stem("/home/user/file.dat") = "file"
- * @endverbatim
- */
-std::string file_stem(const std::string &path);
-/**
-  Get (extract) a path of the given file.
-  @param path - a name of a file under interest including the path
-  @return a string representing the path to the file.
-          For example:
-  @verbatim
-  file_name("/home/user/file.dat") = "/home/user/"
-  @endverbatim
- */
-std::string file_path(const std::string &path);
+bool compare_by_parameter_priority(const std::pair<std::string, ParamBasePtr> &a,
+                                   const std::pair<std::string, ParamBasePtr> &b);
+
 
 #endif // PARAMETERS_HPP

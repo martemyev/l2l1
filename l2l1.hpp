@@ -3,6 +3,7 @@
 
 #include "parameters.hpp"
 #include "correlation.hpp"
+#include "utilities.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -137,8 +138,7 @@ void l2l1(Parameters &param)
   }
 
   //-------------------------------- file of difference ------------------------
-  if (!param._diff_file.empty() &&
-      param._diff_file != Parameters::DEFAULT_FILE_NAME)
+  if (!param._diff_file.empty() && param._diff_file != DEFAULT_FILE_NAME)
   {
     if (param._verbose > 1)
       std::cout << "Make a file of difference: " << param._diff_file << std::endl;
