@@ -1,5 +1,5 @@
 #include "parameters.hpp"
-#include "l2l1.hpp"
+#include "compute.hpp"
 
 int main(int argc, char **argv)
 {
@@ -10,7 +10,8 @@ int main(int argc, char **argv)
 
   param.check_parameters();
 
-  l2l1(param);
+  Compute c(param);
+  c.run();
 
   return 0;
 }

@@ -180,6 +180,10 @@ public:
   /// Verbosity level
   int _verbose;
 
+  /// Whether or not compute the L2 and L1 norms of differences between the
+  /// given files.
+  int _l2l1;
+
   /// The name of the file representing the difference between two datasets from
   /// the files _file_0 and _file_1. The data in the difference file are also
   /// saved in single precision.
@@ -207,6 +211,16 @@ public:
   /// parameter) in the set of lags from -(_lag_region) to +(_lag_region). The
   /// second dataset is supposed to be lagged against the first one.
   int _lag_region;
+
+  /// Compute the RMS (root mean square) for each column (trace), so that the
+  /// output is an array. Depending on the value of this parameter there may be
+  /// computed:
+  /// rms = 0 (default: no computation)
+  /// rms = 1 (compute 2 RMS arrays for each input file)
+  /// rms = 2 (compute 1 RMS array of amplitude of a vector solution - based on
+  ///          two input files representing Ux and Uz components of the field)
+  int _rms;
+
 
   typedef std::map<std::string, ParamBasePtr> ParaMap;
 

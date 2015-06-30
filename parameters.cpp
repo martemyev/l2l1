@@ -24,11 +24,13 @@ Parameters::Parameters(int argc, char **argv)
     _row_beg(0),
     _row_end(-1),
     _verbose(2),
+    _l2l1(0),
     _diff_file(DEFAULT_FILE_NAME),
     _scale_file_1(false),
     _shift_file_1(false),
     _cross_correlation(0),
     _lag_region(0),
+    _rms(0),
     _parameters(),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
@@ -43,11 +45,13 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-r0"]    = ParamBasePtr(new OneParam<int>("first row for comparison", &_row_beg, ++p));
   _parameters["-r1"]    = ParamBasePtr(new OneParam<int>("last row for comparison (not including)", &_row_end, ++p));
   _parameters["-v"]     = ParamBasePtr(new OneParam<int>("verbosity level", &_verbose, ++p));
+  _parameters["-l2l1"]  = ParamBasePtr(new OneParam<int>("compute L2 and L1 norms of difference", &_l2l1, ++p));
   _parameters["-df"]    = ParamBasePtr(new OneParam<std::string>("name of file with difference", &_diff_file, ++p));
   _parameters["-sc1"]   = ParamBasePtr(new OneParam<bool>("scale data 1 with respect to data 0", &_scale_file_1, ++p));
   _parameters["-sh1"]   = ParamBasePtr(new OneParam<bool>("shift data 1 with respect to data 0", &_shift_file_1, ++p));
   _parameters["-xcor"]  = ParamBasePtr(new OneParam<int>("compute cross correlation", &_cross_correlation, ++p));
   _parameters["-lag"]   = ParamBasePtr(new OneParam<int>("lag region for cross correlation computation", &_lag_region, ++p));
+  _parameters["-rms"]   = ParamBasePtr(new OneParam<int>("compute RMS of traces", &_rms, ++p));
 
   update_longest_string_key_len();
 
@@ -199,6 +203,9 @@ void Parameters::check_parameters() const
                  " than the last row for comparison (" << _row_end << ")\n\n";
     exit(1);
   }
+
+  require(_l2l1 == 0 || _l2l1 == 1, "Unexpected value of -l2l1");
+
   if (_cross_correlation != 0 && _cross_correlation != 1 && _cross_correlation != 2)
   {
     std::cerr << "The parameter for computation of the cross correlation has "
@@ -212,6 +219,8 @@ void Parameters::check_parameters() const
                  " >= 0\n\n";
     exit(1);
   }
+
+  require(_rms == 0 || _rms == 1 || _rms == 2, "Unexpected value of -rms");
 }
 
 
