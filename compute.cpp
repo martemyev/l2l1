@@ -87,6 +87,9 @@ void Compute::read()
 
   // and we also know the number of rows in the matrix
   _n_rows = n_numbers / _param._n_cols;
+  if (_param._verbose > 1)
+    std::cout << "n_rows = " << _n_rows << std::endl;
+
   if (_n_rows < 1)
   {
     std::cerr << "The number of rows should be positive: " << _n_rows << "\n";
@@ -178,7 +181,6 @@ void Compute::l2l1() const
 
   if (_param._verbose > 1)
   {
-    std::cout << "\nn_rows      = " << _n_rows;
     std::cout << "\nL2_0        = " << l2_0;
     std::cout << "\nL2_1        = " << l2_1;
     std::cout << "\nL2_diff_abs = " << l2_diff;
@@ -403,12 +405,46 @@ void Compute::compute_rms() const
                            _param._row_beg, _param._row_end,
                            _param._col_beg, _param._col_end,
                            RMS_0, RMS_1);
-    std::cout << "RMS_0:\n";
+
+    const std::string fname0 = file_path(_param._file_0) +
+                               "rms_" + file_stem(_param._file_0) +
+                               ".bin";
+    const std::string fname1 = file_path(_param._file_1) +
+                               "rms_" + file_stem(_param._file_1) +
+                               ".bin";
+
+    std::ofstream out0(fname0.c_str(), std::ios::binary);
+    std::ofstream out1(fname1.c_str(), std::ios::binary);
+    require(out0, "File '" + fname0 + "' can't be opened");
+    require(out1, "File '" + fname1 + "' can't be opened");
+
     for (size_t i = 0; i < RMS_0.size(); ++i)
-      std::cout << RMS_0[i] << " ";
-    std::cout << "\nRMS_1:\n";
-    for (size_t i = 0; i < RMS_1.size(); ++i)
-      std::cout << RMS_1[i] << " ";
+    {
+      float val_x  = _param._col_beg + i;
+      float val0_y = RMS_0[i];
+      float val1_y = RMS_1[i];
+      out0.write((char*)&val_x,  sizeof(float));
+      out0.write((char*)&val0_y, sizeof(float));
+      out1.write((char*)&val_x,  sizeof(float));
+      out1.write((char*)&val1_y, sizeof(float));
+      if (_param._verbose > 1)
+        std::cout << _param._col_beg + i << "\t" << RMS_0[i] << "\t" << RMS_1[i]
+                  << "\n";
+    }
+
+    out1.close();
+    out0.close();
+    
+    std::cout << "  resulting files:\n  " << fname0 << "\n  " << fname1 
+              << std::endl;
+
+    const double RMS_0_min = *std::min_element(RMS_0.begin(), RMS_0.end());
+    const double RMS_0_max = *std::max_element(RMS_0.begin(), RMS_0.end());
+    const double RMS_1_min = *std::min_element(RMS_1.begin(), RMS_1.end());
+    const double RMS_1_max = *std::max_element(RMS_1.begin(), RMS_1.end());
+
+    std::cout << "RMS_0: min = " << RMS_0_min << " max " << RMS_0_max << "\n";
+    std::cout << "RMS_1: min = " << RMS_1_min << " max " << RMS_1_max << "\n";
   }
   else if (_param._rms == 2)
   {
@@ -417,9 +453,32 @@ void Compute::compute_rms() const
                           _param._row_beg, _param._row_end,
                           _param._col_beg, _param._col_end,
                           RMS);
-    std::cout << "\nRMS:\n";
+
+    const std::string fname = file_path(_param._file_0) +
+                              "rms_" + file_stem(_param._file_0) +
+                              "_ampl.bin";
+
+    std::ofstream out(fname.c_str(), std::ios::binary);
+    require(out, "File '" + fname + "' can't be opened");
+
     for (size_t i = 0; i < RMS.size(); ++i)
-      std::cout << RMS[i] << " ";
+    {
+      float val_x = _param._col_beg + i;
+      float val_y = RMS[i];
+      out.write((char*)&val_x, sizeof(float));
+      out.write((char*)&val_y, sizeof(float));
+      if (_param._verbose > 1)
+        std::cout << _param._col_beg + i << "\t" << RMS[0] << "\n";
+    }
+
+    out.close();
+    
+    std::cout << "  resulting file: " << fname << std::endl;
+
+    const double RMS_min = *std::min_element(RMS.begin(), RMS.end());
+    const double RMS_max = *std::max_element(RMS.begin(), RMS.end());
+
+    std::cout << "RMS: min = " << RMS_min << " max " << RMS_max << "\n";
   }
   else require(false, "Unknown rms option");
 }
