@@ -13,8 +13,9 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CXX_FLAGS}")
 
-file(GLOB SRC_LIST "${PROJECT_SOURCE_DIR}/*.cpp") # .cpp files
-file(GLOB HDR_LIST "${PROJECT_SOURCE_DIR}/*.hpp") # .hpp files
+file(GLOB SRC_LIST "${PROJECT_SOURCE_DIR}/sources/*.cpp") # .cpp files
+file(GLOB HDR_LIST "${PROJECT_SOURCE_DIR}/headers/*.hpp") # .hpp files
+include_directories("${PROJECT_SOURCE_DIR}/headers")
 
 add_executable(${PROJECT_NAME} ${SRC_LIST} ${HDR_LIST})
 

@@ -428,8 +428,8 @@ void Compute::compute_rms() const
       out1.write((char*)&val_x,  sizeof(float));
       out1.write((char*)&val1_y, sizeof(float));
       if (_param._verbose > 1)
-        std::cout << _param._col_beg + i << "\t" << RMS_0[i] << "\t" << RMS_1[i]
-                  << "\n";
+        std::cout << _param._col_beg + i << "\t" << d2s(RMS_0[i], 1, 12) << "\t"
+                  << d2s(RMS_1[i], 1, 12) << "\n";
     }
 
     out1.close();
@@ -468,7 +468,7 @@ void Compute::compute_rms() const
       out.write((char*)&val_x, sizeof(float));
       out.write((char*)&val_y, sizeof(float));
       if (_param._verbose > 1)
-        std::cout << _param._col_beg + i << "\t" << RMS[0] << "\n";
+        std::cout << _param._col_beg + i << "\t" << d2s(RMS[i], 1, 12) << "\n";
     }
 
     out.close();
