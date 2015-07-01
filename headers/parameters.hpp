@@ -191,8 +191,12 @@ public:
 
   /// Whether to scale the data from the _file_1 in such a way that it might be
   /// closer to the data from the _file_0. That creates a new file with the
-  /// suffix 'scaled' (or similar).
-  bool _scale_file_1;
+  /// suffix 'scaled' (or similar). This works when _scale_file_1 == 1, but when
+  /// it's 2, the scaling factor is handled by the variable _scale_factor.
+  int _scale_file_1;
+
+  /// A factor for the scaling of the _file_1, when _scale_file_1 == 2.
+  double _scale_factor;
 
   /// Whether to shift the data from the _file_1 in such a way that it might be
   /// closer to the data from the _file_0. That creates a new file with the

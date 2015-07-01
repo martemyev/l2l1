@@ -26,7 +26,8 @@ Parameters::Parameters(int argc, char **argv)
     _verbose(2),
     _l2l1(0),
     _diff_file(DEFAULT_FILE_NAME),
-    _scale_file_1(false),
+    _scale_file_1(0),
+    _scale_factor(0.0),
     _shift_file_1(false),
     _cross_correlation(0),
     _lag_region(0),
@@ -47,7 +48,8 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-v"]     = ParamBasePtr(new OneParam<int>("verbosity level", &_verbose, ++p));
   _parameters["-l2l1"]  = ParamBasePtr(new OneParam<int>("compute L2 and L1 norms of difference", &_l2l1, ++p));
   _parameters["-df"]    = ParamBasePtr(new OneParam<std::string>("name of file with difference", &_diff_file, ++p));
-  _parameters["-sc1"]   = ParamBasePtr(new OneParam<bool>("scale data 1 with respect to data 0", &_scale_file_1, ++p));
+  _parameters["-sc1"]   = ParamBasePtr(new OneParam<int>("scale data 1 with respect to data 0 (1) or to scale factor (2)", &_scale_file_1, ++p));
+  _parameters["-sf"]    = ParamBasePtr(new OneParam<double>("scale factor for data 1", &_scale_factor, ++p));
   _parameters["-sh1"]   = ParamBasePtr(new OneParam<bool>("shift data 1 with respect to data 0", &_shift_file_1, ++p));
   _parameters["-xcor"]  = ParamBasePtr(new OneParam<int>("compute cross correlation", &_cross_correlation, ++p));
   _parameters["-lag"]   = ParamBasePtr(new OneParam<int>("lag region for cross correlation computation", &_lag_region, ++p));

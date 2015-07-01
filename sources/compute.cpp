@@ -239,36 +239,47 @@ void Compute::scale() const
   if (_param._verbose > 1)
     std::cout << "Make a scaled file 1\n";
 
-  // find the absolute max values of the two datasets
-  float max_value0 = fabs(_data0[_param._row_beg][_param._col_beg]);
-  float max_value1 = fabs(_data1[_param._row_beg][_param._col_beg]);
-  for (int i = _param._row_beg + 1; i < _param._row_end; ++i)
+  float ratio;
+
+  if (_param._scale_file_1 == 1)
   {
-    for (int j = _param._col_beg + 1; j < _param._col_end; ++j)
+    // scale the file 1 with respect to the file 0
+
+    // find the absolute max values of the two datasets
+    float max_value0 = fabs(_data0[_param._row_beg][_param._col_beg]);
+    float max_value1 = fabs(_data1[_param._row_beg][_param._col_beg]);
+    for (int i = _param._row_beg + 1; i < _param._row_end; ++i)
     {
-      if (fabs(_data0[i][j]) > max_value0) max_value0 = fabs(_data0[i][j]);
-      if (fabs(_data1[i][j]) > max_value1) max_value1 = fabs(_data1[i][j]);
+      for (int j = _param._col_beg + 1; j < _param._col_end; ++j)
+      {
+        if (fabs(_data0[i][j]) > max_value0) max_value0 = fabs(_data0[i][j]);
+        if (fabs(_data1[i][j]) > max_value1) max_value1 = fabs(_data1[i][j]);
+      }
     }
+
+    ratio = max_value0 / max_value1;
+
+    if (_param._verbose > 1)
+      std::cout << "  max_value0 = " << max_value0 << "\n"
+                << "  max_value1 = " << max_value1 << "\n"
+                << "  ratio      = " << ratio << std::endl;
   }
+  else if (_param._scale_file_1 == 2)
+  {
+    ratio = _param._scale_factor;
+  }
+  else require(false, "Unknown scale option");
 
-  const float ratio = max_value0 / max_value1;
-
-  if (_param._verbose > 1)
-    std::cout << "  max_value0 = " << max_value0 << "\n"
-              << "  max_value1 = " << max_value1 << "\n"
-              << "  ratio      = " << ratio << std::endl;
-
+  //----------------------------------------------------------------------------
   // now create a new file with scaled data from the file 1
+  //----------------------------------------------------------------------------
   const std::string scaled_file_1 = file_path(_param._file_1) +
                                     file_stem(_param._file_1) +
                                     "_scaled.bin";
+
   std::ofstream out(scaled_file_1.c_str(), std::ios::binary);
-  if (!out)
-  {
-    std::cerr << "File '" << scaled_file_1 << "' can't be opened for "
-                 "writing.\n";
-    exit(1);
-  }
+  require(out, "File '" + scaled_file_1 + "' can't be opened for writing");
+
   for (int i = _param._row_beg; i < _param._row_end; ++i)
   {
     for (int j = _param._col_beg; j < _param._col_end; ++j)
@@ -278,6 +289,9 @@ void Compute::scale() const
     }
   }
   out.close();
+
+  if (_param._verbose > 1)
+    std::cout << "  scaled file: " << scaled_file_1 << std::endl;
 }
 
 
