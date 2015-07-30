@@ -1,8 +1,8 @@
 #ifndef CORRELATION_HPP
 #define CORRELATION_HPP
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
 
 /**

@@ -1,8 +1,8 @@
 #include "parameters.hpp"
 #include "utilities.hpp"
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 
 
 
@@ -38,22 +38,22 @@ Parameters::Parameters(int argc, char **argv)
 {
   int p = 0;
 
-  _parameters["-f0"]    = ParamBasePtr(new OneParam<std::string>("file name (reference solution or Ux)", &_file_0, ++p));
-  _parameters["-f1"]    = ParamBasePtr(new OneParam<std::string>("file name (solution to compare or Uz)", &_file_1, ++p));
-  _parameters["-ncols"] = ParamBasePtr(new OneParam<int>("number of columns in the files", &_n_cols, ++p));
+  _parameters["-f0"]    = ParamBasePtr(new OneParam<std::string>("file name for data 0 (reference solution or Ux (for -rms 2, for example))", &_file_0, ++p));
+  _parameters["-f1"]    = ParamBasePtr(new OneParam<std::string>("file name for data 1 (solution to compare or Uz (for -rms 2, for example))", &_file_1, ++p));
+  _parameters["-ncols"] = ParamBasePtr(new OneParam<int>("number of columns in the files (number of traces - a column is a trace)", &_n_cols, ++p));
   _parameters["-c0"]    = ParamBasePtr(new OneParam<int>("first column for comparison", &_col_beg, ++p));
   _parameters["-c1"]    = ParamBasePtr(new OneParam<int>("last column for comparison (not including)", &_col_end, ++p));
   _parameters["-r0"]    = ParamBasePtr(new OneParam<int>("first row for comparison", &_row_beg, ++p));
   _parameters["-r1"]    = ParamBasePtr(new OneParam<int>("last row for comparison (not including)", &_row_end, ++p));
-  _parameters["-v"]     = ParamBasePtr(new OneParam<int>("verbosity level", &_verbose, ++p));
+  _parameters["-v"]     = ParamBasePtr(new OneParam<int>("verbosity level (0 means very little output)", &_verbose, ++p));
   _parameters["-l2l1"]  = ParamBasePtr(new OneParam<int>("compute L2 and L1 norms of difference", &_l2l1, ++p));
   _parameters["-df"]    = ParamBasePtr(new OneParam<std::string>("name of file with difference", &_diff_file, ++p));
-  _parameters["-sc1"]   = ParamBasePtr(new OneParam<int>("scale data 1 with respect to data 0 (1) or to scale factor (2)", &_scale_file_1, ++p));
-  _parameters["-sf"]    = ParamBasePtr(new OneParam<double>("scale factor for data 1", &_scale_factor, ++p));
+  _parameters["-sc1"]   = ParamBasePtr(new OneParam<int>("scale data 1 with respect to data 0 (-sc1 1) or to scale factor (-sc1 2)", &_scale_file_1, ++p));
+  _parameters["-sf"]    = ParamBasePtr(new OneParam<double>("scale factor for data 1 (used if -sc1 2)", &_scale_factor, ++p));
   _parameters["-sh1"]   = ParamBasePtr(new OneParam<bool>("shift data 1 with respect to data 0", &_shift_file_1, ++p));
-  _parameters["-xcor"]  = ParamBasePtr(new OneParam<int>("compute cross correlation", &_cross_correlation, ++p));
+  _parameters["-xcor"]  = ParamBasePtr(new OneParam<int>("compute cross correlation (-xcor 1 compute trace-by-trace and show min-max, -xcor 2 compute global)", &_cross_correlation, ++p));
   _parameters["-lag"]   = ParamBasePtr(new OneParam<int>("lag region for cross correlation computation", &_lag_region, ++p));
-  _parameters["-rms"]   = ParamBasePtr(new OneParam<int>("compute RMS of traces", &_rms, ++p));
+  _parameters["-rms"]   = ParamBasePtr(new OneParam<int>("compute RMS of traces (-rms 1 compute RMS of data 0 and data 1 separately, -rms 2 treat data 0 and data 1 as components of vector field)", &_rms, ++p));
 
   update_longest_string_key_len();
 
@@ -123,6 +123,8 @@ std::ostream& Parameters::print_options(std::ostream &out) const
               << par->get_description()
               << " [" << par->str() << "]\n";
   }
+
+  out << "\n";
 
   return out;
 }

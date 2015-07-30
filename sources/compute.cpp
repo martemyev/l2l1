@@ -1,17 +1,17 @@
 #include "compute.hpp"
-#include "parameters.hpp"
 #include "correlation.hpp"
-#include "utilities.hpp"
+#include "parameters.hpp"
 #include "rms.hpp"
+#include "utilities.hpp"
 
-#include <iostream>
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <cstdlib>
-#include <cmath>
-#include <cfloat>
-#include <algorithm>
 
 
 

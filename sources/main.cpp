@@ -1,5 +1,5 @@
-#include "parameters.hpp"
 #include "compute.hpp"
+#include "parameters.hpp"
 
 int main(int argc, char **argv)
 {
