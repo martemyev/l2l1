@@ -239,7 +239,7 @@ void Compute::scale() const
   if (_param._verbose > 1)
     std::cout << "Make a scaled file 1\n";
 
-  float ratio;
+  float ratio = 0.0;
 
   if (_param._scale_file_1 == 1)
   {
@@ -279,6 +279,7 @@ void Compute::scale() const
 
   std::ofstream out(scaled_file_1.c_str(), std::ios::binary);
   require(out, "File '" + scaled_file_1 + "' can't be opened for writing");
+  require(ratio != 0.0, "Ratio wasn't initialized");
 
   for (int i = _param._row_beg; i < _param._row_end; ++i)
   {
