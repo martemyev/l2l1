@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(l2l1 CXX)
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+  set(CMAKE_BUILD_TYPE "Release")
 endif()
+string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
 message(STATUS "C++ compiler ID = ${CMAKE_CXX_COMPILER_ID}")
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -17,14 +18,14 @@ else()
   set(MY_CXX_FLAGS "")
 endif()
 
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+if(${BUILD_TYPE} STREQUAL "DEBUG")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${MY_CXX_FLAGS} -fno-inline")
   message("Debug flags: ${CMAKE_CXX_FLAGS_DEBUG}")
-elseif(${CMAKE_BUILD_TYPE} MATCHES "Release")
+elseif(${BUILD_TYPE} STREQUAL "RELEASE")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MY_CXX_FLAGS}")
   message("Release flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 else()
-  message(FATAL_ERROR "Unknown build type!")
+  message(FATAL_ERROR "Unknown build type: ${BUILD_TYPE}")
 endif()
 
 file(GLOB SRC_LIST "${PROJECT_SOURCE_DIR}/sources/*.cpp") # .cpp files
