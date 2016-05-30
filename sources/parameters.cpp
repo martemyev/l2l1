@@ -32,6 +32,7 @@ Parameters::Parameters(int argc, char **argv)
     _cross_correlation(0),
     _lag_region(0),
     _rms(0),
+    _check_symmetry(false),
     _parameters(),
     _longest_string_key_len(DEFAULT_PRINT_LEN),
     _longest_string_value_len(DEFAULT_PRINT_LEN)
@@ -54,6 +55,7 @@ Parameters::Parameters(int argc, char **argv)
   _parameters["-xcor"]  = ParamBasePtr(new OneParam<int>("compute cross correlation (-xcor 1 compute trace-by-trace and show min-max, -xcor 2 compute global)", &_cross_correlation, ++p));
   _parameters["-lag"]   = ParamBasePtr(new OneParam<int>("lag region for cross correlation computation", &_lag_region, ++p));
   _parameters["-rms"]   = ParamBasePtr(new OneParam<int>("compute RMS of traces (-rms 1 compute RMS of data 0 and data 1 separately, -rms 2 treat data 0 and data 1 as components of vector field)", &_rms, ++p));
+  _parameters["-sym"]   = ParamBasePtr(new OneParam<bool>("check symmetry of the traces", &_check_symmetry, ++p));
 
   update_longest_string_key_len();
 

@@ -225,6 +225,10 @@ public:
   ///          two input files representing Ux and Uz components of the field)
   int _rms;
 
+  /// Check if the traces in the selected range are symmetric. This is useful
+  /// when the wavefield should be symmetric, and so should be the seismograms.
+  bool _check_symmetry;
+
 
   typedef std::map<std::string, ParamBasePtr> ParaMap;
 

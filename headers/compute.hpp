@@ -1,6 +1,8 @@
 #ifndef COMPUTE_HPP
 #define COMPUTE_HPP
 
+#include <string>
+
 class Parameters;
 
 
@@ -34,6 +36,7 @@ protected:
   void shift() const;
   void compute_xcorrelation() const;
   void compute_rms() const;
+  void check_symmetry(float **data, const std::string &name) const;
 
 
   Compute(const Compute&);

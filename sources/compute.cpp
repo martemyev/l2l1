@@ -60,6 +60,12 @@ void Compute::run()
 
   if (_param._rms != 0)
     compute_rms();
+
+  if (_param._check_symmetry)
+  {
+    check_symmetry(_data0, "dataset 0");
+    check_symmetry(_data1, "dataset 1");
+  }
 }
 
 
@@ -497,3 +503,58 @@ void Compute::compute_rms() const
   }
   else require(false, "Unknown rms option");
 }
+
+
+
+
+static double columns_differ(float **data, int row_beg, int row_end,
+                             int colA, int colB)
+{
+  const double tol = 1e-5;
+  double max_diff = 0.0;
+  for (int i = row_beg; i < row_end; ++i)
+  {
+    const double d0 = data[i][colA];
+    const double d1 = data[i][colB];
+//    std::cout << "    " << i << " " << d0 << " " << d1 << std::endl;
+    double diff = fabs(d0 - d1);
+    if (fabs(d0) > tol)
+      diff /= fabs(d0);
+    max_diff = std::max(max_diff, diff);
+  }
+
+  return max_diff;
+}
+
+
+
+
+void Compute::check_symmetry(float **data, const std::string &name) const
+{
+  if (_param._verbose > 0)
+    std::cout << "Check symmetry" << std::endl;
+
+//  int c_diff_0 = 0, c_diff_1 = 0;
+//  double max_diff = 0.0;
+  for (int c = 0; c < (_param._col_end - _param._col_beg) / 2; ++c)
+  {
+    const int c0 = _param._col_beg + c;
+    const int c1 = _param._col_end - 1 - c;
+    const double diff =
+        columns_differ(data, _param._row_beg, _param._row_end, c0, c1);
+//    if (diff > max_diff)
+//    {
+//      c_diff_0 = c0;
+//      c_diff_1 = c1;
+//      max_diff = diff;
+//    }
+
+    std::cout << "  " << name << ": diff " << diff << " between columns "
+              << c0 << " and " << c1 << std::endl;
+
+  }
+
+//  std::cout << "  " << name << ": max diff " << max_diff << " between columns "
+//            << c_diff_0 << " and " << c_diff_1 << std::endl;
+}
+
